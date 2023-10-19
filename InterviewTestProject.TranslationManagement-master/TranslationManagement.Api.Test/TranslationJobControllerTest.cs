@@ -1,19 +1,21 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using TranslationManagement.Api.Controllers;
+using TranslationManagement.Api.Data.Models;
+using TranslationManagement.Api.Data.Repository;
+using TranslationManagement.Api.Test.Data.Mocks;
 
 namespace TranslationManagement.Api.Test
 {
     [TestFixture]
     public class TranslationJobControllerTest
     {
-        Mock<ILogger<TranslationJobController>> transactionControllerLoggerMock = new Mock<ILogger<TranslationJobController>>();
-
+        ITranslationJobRepository _translationJobRepository;
         [SetUp]
         public void Setup()
         {
             // Arrange
-            var appDBContextMock = new Mock<AppDbContext>();
+            _translationJobRepository = ITranslationJobRepositoryMock.GetMock();
             //appDBContextMock.Setup<DbSet<TranslationJob>>(x => x.TranslationJobs).Returns<DbSet<TranslationJob>>(MockHelper.GetFakeTranslationJobs());
 
             //Act
@@ -22,9 +24,17 @@ namespace TranslationManagement.Api.Test
         }
 
         [Test]
-        public void Test1()
+        public void GetTranslationJobsTest()
         {
-            Assert.Pass();
+            //Act
+            TranslationJob[] lstData = _translationJobRepository.GetJobs();
+
+            //Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(lstData, Is.Not.Null);
+                Assert.That(lstData.Count, Is.GreaterThan(0));
+            });
         }
     }
 }
