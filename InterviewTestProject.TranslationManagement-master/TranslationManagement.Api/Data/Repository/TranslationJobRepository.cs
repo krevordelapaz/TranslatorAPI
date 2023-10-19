@@ -24,10 +24,8 @@ namespace TranslationManagement.Api.Data.Repository
             }
 
             _appDbContext.TranslationJobs.Add(job);
-            _appDbContext.SaveChanges();
 
-            returnValue = _appDbContext.SaveChanges() > 0;
-            return returnValue;
+            return _appDbContext.SaveChanges() > 0;
         }
 
         public TranslationJob GetJobById(int jobId)

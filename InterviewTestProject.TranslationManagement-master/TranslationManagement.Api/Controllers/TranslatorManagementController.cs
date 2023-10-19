@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TranslationManagement.Api.Data.Models;
+using TranslationManagement.Api.Data.Repository;
 using TranslationManagement.Api.Infrastructure.Enums;
 using TranslationManagement.Api.Infrastructure.Extensions;
 using TranslationManagement.Api.Infrastructure.Helpers;
@@ -15,60 +13,67 @@ namespace TranslationManagement.Api.Controllers
     public class TranslatorManagementController : ControllerBase
     {
         private readonly ILogger<TranslatorManagementController> _logger;
-        private AppDbContext _dbContext;
+        private readonly ITranslatorRepository _translatorRepository;
 
-        public TranslatorManagementController(AppDbContext dbContext, ILogger<TranslatorManagementController> logger)
+        public TranslatorManagementController(ITranslatorRepository translatorRepository, ILogger<TranslatorManagementController> logger)
         {
-            _dbContext = dbContext;
+            _translatorRepository = translatorRepository;
             _logger = logger;
         }
 
         [HttpGet]
-        public Translator[] GetTranslators()
+        public IActionResult GetTranslators()
         {
-            return _dbContext.Translators.ToArray();
+            return Ok(_translatorRepository.GetTranslators());
         }
 
         [HttpGet]
-        public Translator[] GetTranslatorsByName(string name)
+        public IActionResult GetTranslatorsByName(string name)
         {
-            Translator[] translators = _dbContext.Translators.Where(translator => translator.Name == name).ToArray();
+            Translator[] translators = _translatorRepository.GetTranslatorsByName(name);
 
             if(translators.Length <= 0 )
             {
-                throw new ApplicationException($"Translator/s with name {name} does not exist.");
+                return BadRequest($"Translator/s with name {name} does not exist.");
             }
 
-            return translators;
+            return Ok(translators);
         }
 
         [HttpPost]
-        public bool AddTranslator(Translator translator)
+        public IActionResult AddTranslator(Translator translator)
         {
             _logger.LogInformation($"Adding translator {translator}...");
-            _dbContext.Translators.Add(translator);
-            return _dbContext.SaveChanges() > 0;
+            bool isSuccessful = _translatorRepository.AddTranslator(translator);
+
+            return Ok(isSuccessful);
         }
         
         [HttpPost]
-        public string UpdateTranslatorStatus(int translatorId, string newStatus = "")
+        public IActionResult UpdateTranslatorStatus(int translatorId, string newStatus = "")
         {
             _logger.LogInformation($"User status update request: {newStatus} for user {translatorId}");
 
             if (!ControllerHelper.IsTranslationStatusValid(newStatus))
             {
-                throw new ArgumentException("unknown status");
+                return BadRequest("Status Invalid");
             }
 
-            var translator = _dbContext.Translators.Single(translator => translator.Id == translatorId);
+            Translator translator = _translatorRepository.GetTranslatorById(translatorId);
 
             if(translator == null)
-                throw new KeyNotFoundException($"Translator with id {translatorId} not existing");
+                return BadRequest($"Translator with id {translatorId} not existing");
 
-            translator.Status = newStatus;
-            bool success = _dbContext.SaveChanges() > 0;
+            bool isUpdateSuccessful = _translatorRepository.UpdateTranslatorStatus(translator, newStatus);
 
-            return success ? ProcessFlow.Updated.GetEnumDescription() : ProcessFlow.UpdatingFailed.GetEnumDescription();
+            if (isUpdateSuccessful)
+            {
+                return Ok(ProcessFlow.Updated.GetEnumDescription());
+            }
+            else
+            {
+                return BadRequest(ProcessFlow.UpdatingFailed.GetEnumDescription());
+            }
         }
     }
 }
