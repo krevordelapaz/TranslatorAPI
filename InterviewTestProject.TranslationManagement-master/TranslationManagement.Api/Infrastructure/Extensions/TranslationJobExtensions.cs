@@ -1,5 +1,5 @@
-﻿using TranslationManagement.Api.Infrastructure.Helpers;
-using TranslationManagement.Api.Infrastructure.Models;
+﻿using TranslationManagement.Api.Data.Models;
+using TranslationManagement.Api.Infrastructure.Helpers;
 
 namespace TranslationManagement.Api.Infrastructure.Extensions
 {

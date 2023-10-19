@@ -7,11 +7,11 @@ using External.ThirdParty.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using TranslationManagement.Api.Controlers;
+using TranslationManagement.Api.Data.Models;
+using TranslationManagement.Api.Data.Repository;
 using TranslationManagement.Api.Infrastructure.Enums;
 using TranslationManagement.Api.Infrastructure.Extensions;
 using TranslationManagement.Api.Infrastructure.Helpers;
-using TranslationManagement.Api.Infrastructure.Models;
 
 namespace TranslationManagement.Api.Controllers
 {
@@ -19,31 +19,30 @@ namespace TranslationManagement.Api.Controllers
     [Route("api/jobs/[action]")]
     public class TranslationJobController : ControllerBase
     {
-        private readonly AppDbContext _dbContext;
-        private readonly ILogger<TranslatorManagementController> _logger;
+        private readonly ITranslationJobRepository _translationJobRepository;
+        private readonly ILogger<TranslationJobController> _logger;
 
-        public TranslationJobController(AppDbContext dbContext, ILogger<TranslatorManagementController> logger)
+        public TranslationJobController(ITranslationJobRepository translationJobRepository, ILogger<TranslationJobController> logger)
         {
-            _dbContext = dbContext;
+            _translationJobRepository = translationJobRepository;
             _logger = logger;
         }
 
         [HttpGet]
         public TranslationJob[] GetJobs()
         {
-            return _dbContext.TranslationJobs.ToArray();
+            return _translationJobRepository.GetJobs();
         }
 
         [HttpPost]
-        public bool CreateJob(TranslationJob job)
+        public IActionResult CreateJob(TranslationJob job)
         {
             _logger.LogInformation($"Job creation request received with id {job.Id}.");
 
             job.InitializeJob();
-            _dbContext.TranslationJobs.Add(job);
+            bool isAddingSuccessful = _translationJobRepository.AddJob(job);
 
-            bool success = _dbContext.SaveChanges() > 0;
-            if (success)
+            if (isAddingSuccessful)
             {
                 _logger.LogInformation($"Job with id {job.Id} successfully created.");
                 var notificationSvc = new UnreliableNotificationService();
@@ -52,13 +51,18 @@ namespace TranslationManagement.Api.Controllers
                 }
 
                 _logger.LogInformation("New job notification sent");
-            }
 
-            return success;
+
+                return Ok(isAddingSuccessful);
+            }
+            else
+            {
+                return BadRequest("Job creation not successful");
+            }
         }
 
         [HttpPost]
-        public bool CreateJobWithFile(IFormFile file, string customer)
+        public IActionResult CreateJobWithFile(IFormFile file, string customer)
         {
             _logger.LogInformation($"Job creation request from file received.");
             string content;
@@ -94,7 +98,7 @@ namespace TranslationManagement.Api.Controllers
         }
 
         [HttpPost]
-        public string UpdateJobStatus(int jobId, string newStatus = "")
+        public IActionResult UpdateJobStatus(int jobId, int translatorId, string newStatus = "")
         {
             _logger.LogInformation($"Job status update request received: {newStatus} for job {jobId}");
 
@@ -103,10 +107,10 @@ namespace TranslationManagement.Api.Controllers
                 throw new ArgumentException("invalid status");
             }
 
-            var job = _dbContext.TranslationJobs.Single(job => job.Id == jobId);
+            var job = _translationJobRepository.GetJobById(jobId);
 
             if (job == null)
-                throw new KeyNotFoundException($"Job with id {jobId} not existing");
+                return BadRequest($"Job with id {jobId} not existing");
 
             bool isStatusChangeValid = (job.Status == JobStatus.New.ToString() && 
                                         newStatus == JobStatus.Completed.ToString()) ||
@@ -115,14 +119,19 @@ namespace TranslationManagement.Api.Controllers
 
             if (isStatusChangeValid)
             {
-                throw new InvalidOperationException("invalid status change");
+                return BadRequest("invalid status change");
             }
 
-            job.Status = newStatus;
+            bool isJobStatusUpdateSuccessful = _translationJobRepository.UpdateJobStatus(job, newStatus);
 
-            bool success = _dbContext.SaveChanges() > 0;
-
-            return success ? ProcessFlow.Updated.GetEnumDescription() : ProcessFlow.UpdatingFailed.GetEnumDescription();
+            if(isJobStatusUpdateSuccessful)
+            {
+                return Ok(ProcessFlow.Updated.GetEnumDescription());
+            }
+            else
+            {
+                return BadRequest(ProcessFlow.UpdatingFailed.GetEnumDescription());
+            }
         }
     }
 }

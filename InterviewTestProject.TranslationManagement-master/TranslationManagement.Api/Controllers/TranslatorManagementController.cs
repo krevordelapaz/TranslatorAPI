@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TranslationManagement.Api.Data.Models;
 using TranslationManagement.Api.Infrastructure.Enums;
 using TranslationManagement.Api.Infrastructure.Extensions;
 using TranslationManagement.Api.Infrastructure.Helpers;
-using TranslationManagement.Api.Infrastructure.Models;
 
-namespace TranslationManagement.Api.Controlers
+namespace TranslationManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/TranslatorsManagement/[action]")]

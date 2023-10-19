@@ -1,7 +1,7 @@
 ﻿using System;
+using TranslationManagement.Api.Data.Models;
 using TranslationManagement.Api.Infrastructure.Constants;
 using TranslationManagement.Api.Infrastructure.Enums;
-using TranslationManagement.Api.Infrastructure.Models;
 
 namespace TranslationManagement.Api.Infrastructure.Helpers
 {

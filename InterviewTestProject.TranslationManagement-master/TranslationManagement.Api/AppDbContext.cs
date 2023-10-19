@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TranslationManagement.Api.Infrastructure.Models;
+using TranslationManagement.Api.Data.Models;
 
 namespace TranslationManagement.Api
 {

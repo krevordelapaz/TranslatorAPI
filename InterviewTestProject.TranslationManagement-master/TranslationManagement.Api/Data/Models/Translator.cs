@@ -1,4 +1,4 @@
-﻿namespace TranslationManagement.Api.Infrastructure.Models
+﻿namespace TranslationManagement.Api.Data.Models
 {
     public class Translator
     {

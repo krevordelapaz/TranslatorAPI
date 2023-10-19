@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace TranslationManagement.Api.Migrations
+namespace TranslationManagement.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -13,7 +13,7 @@ namespace TranslationManagement.Api.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.2");
 
-            modelBuilder.Entity("TranslationManagement.Api.Controlers.TranslatorManagementController+TranslatorModel", b =>
+            modelBuilder.Entity("TranslationManagement.Api.Controllers.TranslatorManagementController+TranslatorModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
