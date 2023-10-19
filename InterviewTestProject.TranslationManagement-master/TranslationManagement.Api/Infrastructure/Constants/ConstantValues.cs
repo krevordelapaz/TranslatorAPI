@@ -2,5 +2,6 @@
 {
     public static class ConstantValues
     {
+        public const double PricePerCharacter = 0.01;
     }
 }

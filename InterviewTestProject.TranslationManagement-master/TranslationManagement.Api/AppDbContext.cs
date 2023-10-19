@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TranslationManagement.Api.Controlers;
-using TranslationManagement.Api.Controllers;
 using TranslationManagement.Api.Infrastructure.Models;
 
 namespace TranslationManagement.Api

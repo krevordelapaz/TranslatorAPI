@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TranslationManagement.Api.Infrastructure.Enums;
+using TranslationManagement.Api.Infrastructure.Extensions;
+using TranslationManagement.Api.Infrastructure.Helpers;
 using TranslationManagement.Api.Infrastructure.Models;
 
 namespace TranslationManagement.Api.Controlers
@@ -10,8 +14,6 @@ namespace TranslationManagement.Api.Controlers
     [Route("api/TranslatorsManagement/[action]")]
     public class TranslatorManagementController : ControllerBase
     {
-        public static readonly string[] TranslatorStatuses = { "Applicant", "Certified", "Deleted" };
-
         private readonly ILogger<TranslatorManagementController> _logger;
         private AppDbContext _dbContext;
 
@@ -30,30 +32,43 @@ namespace TranslationManagement.Api.Controlers
         [HttpGet]
         public Translator[] GetTranslatorsByName(string name)
         {
-            return _dbContext.Translators.Where(t => t.Name == name).ToArray();
+            Translator[] translators = _dbContext.Translators.Where(translator => translator.Name == name).ToArray();
+
+            if(translators.Length <= 0 )
+            {
+                throw new ApplicationException($"Translator/s with name {name} does not exist.");
+            }
+
+            return translators;
         }
 
         [HttpPost]
         public bool AddTranslator(Translator translator)
         {
+            _logger.LogInformation($"Adding translator {translator}...");
             _dbContext.Translators.Add(translator);
             return _dbContext.SaveChanges() > 0;
         }
         
         [HttpPost]
-        public string UpdateTranslatorStatus(int Translator, string newStatus = "")
+        public string UpdateTranslatorStatus(int translatorId, string newStatus = "")
         {
-            _logger.LogInformation("User status update request: " + newStatus + " for user " + Translator.ToString());
-            if (TranslatorStatuses.Where(status => status == newStatus).Count() == 0)
+            _logger.LogInformation($"User status update request: {newStatus} for user {translatorId}");
+
+            if (!ControllerHelper.IsTranslationStatusValid(newStatus))
             {
                 throw new ArgumentException("unknown status");
             }
 
-            var job = _dbContext.Translators.Single(j => j.Id == Translator);
-            job.Status = newStatus;
-            _dbContext.SaveChanges();
+            var translator = _dbContext.Translators.Single(translator => translator.Id == translatorId);
 
-            return "updated";
+            if(translator == null)
+                throw new KeyNotFoundException($"Translator with id {translatorId} not existing");
+
+            translator.Status = newStatus;
+            bool success = _dbContext.SaveChanges() > 0;
+
+            return success ? ProcessFlow.Updated.GetEnumDescription() : ProcessFlow.UpdatingFailed.GetEnumDescription();
         }
     }
 }
