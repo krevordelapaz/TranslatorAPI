@@ -2,7 +2,7 @@ using TranslationManagement.Api.Data.Models;
 using TranslationManagement.Api.Data.Repository;
 using TranslationManagement.Api.Test.Data.Mocks;
 
-namespace TranslationManagement.Api.Test
+namespace TranslationManagement.Api.Test.Data.Repository
 {
     [TestFixture]
     public class TranslationJobControllerTest
@@ -45,7 +45,7 @@ namespace TranslationManagement.Api.Test
             Assert.Multiple(() =>
             {
                 Assert.That(translationJob, Is.Not.Null);
-                Assert.AreEqual(translationJob.Id, 1);    
+                Assert.That(translationJob.Id, Is.EqualTo(1));
             });
         }
 

@@ -14,18 +14,18 @@ namespace TranslationManagement.Api.Test.Data.Mocks
 
         private static List<TranslationJob> GenerateTestData()
         {
-            List<TranslationJob> lstUser = new();
+            List<TranslationJob> translationJobs = new();
             Random rand = new Random();
             for (int index = 1; index <= 10; index++)
             {
-                lstUser.Add(new TranslationJob
+                translationJobs.Add(new TranslationJob
                 {
                     Id = index,
                     CustomerName = $"Customer-{index}",
                     OriginalContent = $"Content-{index}"
                 });
             }
-            return lstUser;
+            return translationJobs;
         }
     }
 }
