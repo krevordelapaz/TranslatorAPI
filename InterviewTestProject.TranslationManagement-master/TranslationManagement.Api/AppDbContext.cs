@@ -9,7 +9,13 @@ namespace TranslationManagement.Api
         {
         }
 
-        public DbSet<TranslationJob> TranslationJobs { get; set; }
-        public DbSet<Translator> Translators { get; set; }
+        public AppDbContext()
+        {
+
+        }
+
+        //Virtual to support unit testing
+        public virtual DbSet<TranslationJob> TranslationJobs { get; set; }
+        public virtual DbSet<Translator> Translators { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using TranslationManagement.Api.Data.Models;
 
@@ -25,9 +23,11 @@ namespace TranslationManagement.Api.Data.Repository
                 return returnValue;
             }
 
-            _appDbContext.Translators.Add(translator);
+            _appDbContext.SaveChanges();
 
-            return _appDbContext.SaveChanges() > 0;
+            returnValue = true;
+
+            return returnValue;
         }
 
         public Translator GetTranslatorById(int translatorId)
@@ -59,9 +59,11 @@ namespace TranslationManagement.Api.Data.Repository
 
             translator.Status = newStatus;
 
-            _appDbContext.Translators.Update(translator);
+            _appDbContext.SaveChanges();
 
-            return _appDbContext.SaveChanges() > 0;
+            returnValue = true;
+
+            return returnValue;
         }
     }
 

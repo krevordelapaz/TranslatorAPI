@@ -8,8 +8,7 @@ namespace TranslationManagement.Api.Test.Data.Mocks
     {
         public static ITranslationJobRepository GetMock()
         {
-            List<TranslationJob> lstUser = GenerateTestData();
-            AppDbContext dbContextMock = AppDbContextMock.GetMock<TranslationJob, AppDbContext>(lstUser, x => x.TranslationJobs);
+            AppDbContext dbContextMock = AppDbContextMock.GetMock<TranslationJob, AppDbContext>(GenerateTestData(), dbContext => dbContext.TranslationJobs);
             return new TranslationJobRepository(dbContextMock);
         }
 

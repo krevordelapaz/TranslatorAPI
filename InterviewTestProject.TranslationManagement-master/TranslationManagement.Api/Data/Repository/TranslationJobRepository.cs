@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Linq;
+﻿using System.Linq;
 using TranslationManagement.Api.Data.Models;
 
 namespace TranslationManagement.Api.Data.Repository
@@ -23,9 +22,11 @@ namespace TranslationManagement.Api.Data.Repository
                 return returnValue; 
             }
 
-            _appDbContext.TranslationJobs.Add(job);
+            _appDbContext.SaveChanges();
 
-            return _appDbContext.SaveChanges() > 0;
+            returnValue = true;
+
+            return returnValue;
         }
 
         public TranslationJob GetJobById(int jobId)
@@ -51,7 +52,9 @@ namespace TranslationManagement.Api.Data.Repository
 
             _appDbContext.TranslationJobs.Update(job);
 
-            returnValue = _appDbContext.SaveChanges() > 0;
+            _appDbContext.SaveChanges();
+
+            returnValue = true; 
 
             return returnValue;
         }
